@@ -2,7 +2,7 @@ import AlunoModel from '../models/AlunoModel.js';
 import fs from 'fs/promises';
 import { processarFoto, removerFoto } from '../utils/fotoHelper.js';
 
-export const relatorioPorId = async (req, res) => {
+export const uploadFoto = async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: 'Nenhum arquivo enviado!' });
@@ -35,11 +35,11 @@ export const relatorioPorId = async (req, res) => {
         });
     } catch (error) {
         console.error('Erro ao criar:', error);
-        res.status(500).json({ error: 'Erro interno ao salvar o registro.' });
+        return res.status(500).json({ error: 'Erro interno ao salvar o registro.' });
     }
 };
 
-export const relatorioTodos = async (req, res) => {
+export const verFoto = async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -62,6 +62,6 @@ export const relatorioTodos = async (req, res) => {
         return res.sendFile(aluno.foto, { root: '.' });
     } catch (error) {
         console.error('Erro ao buscar aluno:', error);
-        res.status(500).json({ error: 'Erro ao buscar registro do aluno.' });
+        return res.status(500).json({ error: 'Erro ao buscar registro do aluno.' });
     }
 };

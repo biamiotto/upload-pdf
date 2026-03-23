@@ -58,31 +58,41 @@ export const buscarPorId = async (req, res) => {
 
 export const atualizar = async (req, res) => {
     try {
-        const { id } = req.params;
+        const idNum = Number(req.params.id);
 
-        if (isNaN(id)) return res.status(400).json({ error: 'ID inválido.' });
-
-        if (!req.body) {
-            return res.status(400).json({ error: 'Corpo da requisição vazio. Envie os dados!' });
+        if (!Number.isInteger(idNum)) {
+            return res.status(400).json({ error: 'ID inválido.' });
         }
 
-        const aluno = await AlunoModel.buscarPorId(parseInt(id));
+        if (Object.keys(req.body).length === 0) {
+            return res.status(400).json({ error: 'Corpo da requisição vazio.' });
+        }
+
+        const aluno = await AlunoModel.buscarPorId(idNum);
 
         if (!aluno) {
-            return res.status(404).json({ error: 'Aluno não encontrado para atualizar.' });
+            return res.status(404).json({ error: 'Aluno não encontrado.' });
         }
 
         if (req.body.nome !== undefined) aluno.nome = req.body.nome;
         if (req.body.escola !== undefined) aluno.escola = req.body.escola;
-        if (req.body.turma !== undefined) aluno.turma = parseFloat(req.body.turma);
-        if (req.body.foto !== undefined) aluno.foto = parseFloat(req.body.foto);
+
+        if (req.body.turma !== undefined) {
+            const turma = Number(req.body.turma);
+            if (isNaN(turma)) {
+                return res.status(400).json({ error: 'Turma inválida.' });
+            }
+            aluno.turma = turma;
+        }
+
+        if (req.body.foto !== undefined) aluno.foto = req.body.foto;
 
         const data = await aluno.atualizar();
 
-        res.json({ message: `O aluno "${data.nome}" foi atualizado com sucesso!`, data });
+        res.json({ message: `Aluno "${data.nome}" atualizado com sucesso!`, data });
     } catch (error) {
         console.error('Erro ao atualizar:', error);
-        res.status(500).json({ error: 'Erro ao atualizar o aluno.' });
+        res.status(500).json({ error: 'Erro interno ao atualizar o aluno.' });
     }
 };
 
